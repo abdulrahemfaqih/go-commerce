@@ -3,6 +3,7 @@ package handlers
 import (
 	"abdulrahemfaqih/go-commerce/models"
 	"sync"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -43,7 +44,23 @@ func CreateProduct(db *gorm.DB) gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
-		db.Create(&input)
+		// cek apakah category id benar adanya
+		var category models.ProductCategory
+		if err := db.First(&category, input.CategoryID).Error; err != nil {
+			ctx.JSON(404, gin.H{"error": "category not found"})
+			return
+		}
+		// cek apakah product sudah ada berdasarkan nama
+		var product models.Product
+		if err := db.Where("name = ?", input.Name).First(&product).Error; err == nil {
+			ctx.JSON(400, gin.H{"error": "product already exists"})
+			return
+		}
+		// Simpan dan cek error dari database
+		if err := db.Create(&input).Error; err != nil {
+			ctx.JSON(500, gin.H{"error": "failed to create product: " + err.Error()})
+			return
+		}
 		ctx.JSON(201, input)
 	}
 }

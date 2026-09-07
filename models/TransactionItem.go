@@ -6,9 +6,9 @@ type TransactionItem struct {
 
 	ID            uint    `gorm:"primary_key" json:"id"`
 	TransactionID uint    `json:"transaction_id"`
-	Transaction   Transaction `gorm:"foreignkey:TransactionID"`
+	Transaction   *Transaction `gorm:"foreignkey:TransactionID" json:"-"`
 	ProductID     uint    `json:"product_id"`
-	Product       Product `gorm:"foreignkey:ProductID"`
-	Price         float64 `json:"price"`
+	Product       *Product `gorm:"foreignkey:ProductID" json:"-"`
+	Price         float64 `json:"price"`	
 	Quantity      int     `json:"quantity"`
 }
